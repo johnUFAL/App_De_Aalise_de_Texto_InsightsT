@@ -1,0 +1,22 @@
+# Requisitos do projeto
+alembic 
+bcrypt 
+fastapi 
+pt_core_news_sm 
+pydantic
+python-dotenv 
+passlib[bcrypt]
+psycopg2-asyncpg
+pyphen 
+python-jose[cryptography]
+python-multipart
+spacy 
+SQLAlchemy 
+SQLAlchemy-utils 
+slowapi
+textbolob 
+uvicorn 
+
+# Dependencias úteis para teste
+pytest
+httpx

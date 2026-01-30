@@ -6,10 +6,14 @@ from .analysis import Base, Usuario, TokenRevogado
 from sqlalchemy import create_engine # type: ignore
 from sqlalchemy.orm import sessionmaker, Session # type: ignore
 from jose import JWTError, jwt # type: ignore
+from app.core.config import DATABASE_URL
 
 #Configuração do banco de dados
-DATABASE_URL = 'sqlite:///analyses.db'
-engine = create_engine(DATABASE_URL)
+engine = create_engine(
+    DATABASE_URL.replace('postgresql://', 'postgresql+psycopg2://'),
+    pool_pre_ping=True,
+)
+
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 #Criação das tabelas no banco de dados
