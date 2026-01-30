@@ -1,3 +1,4 @@
+# NLP Service para análise de texto em português
 import spacy #type: ignore
 from collections import Counter
 import re
@@ -6,9 +7,11 @@ import json
 from typing import List, Dict, Any
 import unicodedata
 
+#Carregando o modelo de linguagem para português
 class NLPService:
     def __init__(self):
         self.nlp = spacy.load("pt_core_news_sm")
+        #Inicializando o dicionário de hifenização para português
         self.lexico_positivo = {
             "bom", "boa", "excelente", "ótimo", "ótima", "maravilhoso", "fantástico",
             "incrível", "rápido", "eficiente", "eficaz", "funciona", "funcionou",
@@ -39,6 +42,7 @@ class NLPService:
         
         self.negacoes = {"não", "nem", "nunca", "jamais", "tampouco"}
 
+    #Análise completa do texto
     def analisar_texto(self, texto: str) -> dict:
         texto = texto.strip()
 
@@ -73,13 +77,16 @@ class NLPService:
         
         return resultado
 
+    #Análise de sentimento para texto em português
     def analisar_sentimento_portugues(self, texto: str, doc) -> str:
+        #Pré-processamento do texto
         texto_limpo = self.preprocessar_texto(texto)
         tokens = [token.text.lower() for token in doc if token.is_alpha]
         
         if not tokens:
             return "Neutro"
         
+        #Cálculo da pontuação de sentimento
         pontuacao = 0
         total_tokens = len(tokens)
         
@@ -93,6 +100,7 @@ class NLPService:
             proximo_positivo = False
             proximo_negativo = False
             
+            #Verifica o próximo token para intensificação
             if i + 1 < len(tokens):
                 proximo_token = tokens[i + 1]
                 if proximo_token in self.lexico_positivo:
@@ -118,6 +126,7 @@ class NLPService:
                 if i > 0 and tokens[i-1] in ["muito", "bastante"]:
                     pontuacao -= 0.5
             
+            #Verifica bigramas para expressões comuns
             if i + 1 < len(tokens):
                 bigrama = f"{token_lower} {tokens[i+1]}"
                 if any(expr in bigrama for expr in ["muito bom", "muito boa", "muito útil"]):
@@ -125,6 +134,7 @@ class NLPService:
                 elif any(expr in bigrama for expr in ["muito ruim", "muito lento", "não funciona"]):
                     pontuacao -= 2.0
         
+        #Normalização da pontuação
         pontuacao_normalizada = pontuacao / max(total_tokens, 1)
         
         if pontuacao_normalizada > 0.1:
@@ -134,12 +144,14 @@ class NLPService:
         else:
             return "Neutro"
 
+    #Pré-processamento do texto
     def preprocessar_texto(self, texto: str) -> str:
         texto = texto.lower()
         texto = ''.join(c for c in unicodedata.normalize('NFD', texto) 
                        if unicodedata.category(c) != 'Mn')
         return texto
 
+    #Encontrar a palavra mais frequente no texto
     def palavra_mais_frequente(self, doc) -> str:     
         palavras = [
             token.text for token in doc
@@ -151,12 +163,15 @@ class NLPService:
         if not palavras:
             return "Nenhuma palavra significativa encontrada."
         
+        #Contagem de frequência das palavras
         cont = Counter(palavras)
         return cont.most_common(1)[0][0]
     
+    #Extração de entidades nomeadas
     def extrair_entidades(self, doc) -> list:
         entidades = []
 
+        #Filtra entidades relevantes
         for ent in doc.ents:
             if ent.label_ not in {"PER", "ORG", "LOC"}:
                 continue
@@ -171,12 +186,15 @@ class NLPService:
 
         return entidades
 
+    #Contagem de sílabas em uma palavra
     def cont_silabas(self, palavra: str) -> int:
+        #Remover caracteres não alfabéticos e converter para minúsculas
         palavra = ''.join(c for c in palavra if c.isalpha()).lower()
         
         if not palavra:
             return 0
-            
+        
+        #Definição de vogais, ditongos e tritongos em português
         vogais = 'aeiouáéíóúâêîôûàèìòùãõ'
         ditongos = ['ai', 'au', 'ei', 'eu', 'oi', 'ou', 'ui',
                    'ãe', 'ão', 'õe', 'ae', 'ao', 'ia', 'ie',
@@ -188,6 +206,7 @@ class NLPService:
             if vogal_acentuada in palavra_simplificada:
                 palavra_simplificada = palavra_simplificada.replace(vogal_acentuada, vogal_acentuada[0])
         
+        #Contagem de sílabas
         silabas = 0
         i = 0
         while i < len(palavra_simplificada):
@@ -215,6 +234,7 @@ class NLPService:
             
         return max(silabas, 1)
 
+    #Cálculo do nível de legibilidade adaptado para português
     def lvl_legibilidade_adaptado(self, doc) -> str:
         
         frases = self.cont_frases(doc)
@@ -223,11 +243,14 @@ class NLPService:
         if frases < 1 or len(palavras) < 10:
             return "Curto demais para avaliar."
         
+        #Cálculo do índice de legibilidade
         palavras_por_frase = len(palavras) / frases
         
+        #Contagem total de sílabas
         total_silabas = sum(self.cont_silabas(p) for p in palavras)
         silabas_por_palavra = total_silabas / len(palavras)
         
+        #Índice de legibilidade adaptado#
         indice = 180 - palavras_por_frase - (58.5 * silabas_por_palavra)
         
         if indice >= 80:
@@ -241,31 +264,15 @@ class NLPService:
         else:
             return "Muito difícil (Pós-graduação)"
 
+    #Contagem de palavras no texto
     def cont_palavras(self, texto: str) -> int:
         palavras = re.findall(r'\b\w+\b', texto)
         return len(palavras)
 
+    #Contagem de caracteres no texto
     def cont_caracteres(self, texto: str) -> int:
         return len(texto)
 
+    #Contagem de frases no texto
     def cont_frases(self, doc) -> int:
         return len(list(doc.sents))
-
-
-if __name__ == "__main__":
-    nlp = NLPService()
-    
-    # Testes com exemplos
-    testes = [
-        "O aplicativo está lento e trava constantemente.",
-        "Este software é excelente e muito fácil de usar!",
-        "A interface do sistema é clara e organizada.",
-        "Não recomendo este produto, pois apresenta muitos erros.",
-        "O sistema oferece diversas funcionalidades que facilitam a análise de dados, mantendo uma interface clara e organizada para o usuário."
-    ]
-    
-    for i, texto in enumerate(testes, 1):
-        print(f"\nTeste {i}:")
-        print(f"Texto: {texto}")
-        resultado = nlp.analisar_texto(texto)
-        print(f"Resultado: {resultado}")

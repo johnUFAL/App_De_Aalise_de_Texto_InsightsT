@@ -1,3 +1,4 @@
+# configurações de segurança da aplicação
 from fastapi.security import OAuth2PasswordBearer  # type: ignore
 from passlib.context import CryptContext  # type: ignore
 

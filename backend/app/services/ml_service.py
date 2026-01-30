@@ -1,3 +1,4 @@
+#Pipelines de ML para classificação de tópicos de textos
 from sklearn.feature_extraction.text import TfidfVectorizer # type: ignore
 from sklearn.naive_bayes import MultinomialNB # type: ignore
 from sklearn.pipeline import Pipeline # type: ignore
@@ -5,12 +6,14 @@ import numpy as np # type: ignore
 import joblib # type: ignore
 import os
 
+#Classe para classificação de tópicos
 class TopicClassifier:
     def __init__(self):
         self.pipeline = None
         self.topics = ["política", "esportes", "tecnologia", "economia", "entretenimento"]
         self.load_or_train_model()
 
+    #carrega ou treina modelo
     def load_or_train_model(self):
         model_path = "topic_model.pkl"
         
@@ -25,6 +28,7 @@ class TopicClassifier:
         if self.pipeline:
             joblib.dump(self.pipeline, model_path)
 
+    #treina modelo básico
     def train_basic_model(self):        
         textos_treino = [
             #política 0
@@ -132,11 +136,13 @@ class TopicClassifier:
             except:
                 print(f"  '{text}' -> erro na predição")
 
+    #prediz tópico do texto
     def predict(self, texto):
         if self.pipeline is None:
             print("AVISO: Usando fallback porque pipeline não foi treinado")
             return self.fallback_predict(texto)
         
+        #preprocessamento simples
         try:
             texto_simplificado = ' '.join([
                 palavra for palavra in texto.lower().split()
@@ -165,6 +171,7 @@ class TopicClassifier:
         except Exception as e:
             return self.fallback_predict(texto)
     
+    #fallback simples baseado em palavras-chave
     def fallback_predict(self, texto):
         texto_lower = texto.lower()
         

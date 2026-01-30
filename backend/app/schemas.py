@@ -1,7 +1,9 @@
+#padrão de dados para a aplicação
 from datetime import datetime
 from pydantic import BaseModel, Field # type: ignore
 from typing import Optional, List
 
+#Schema para criação de usuário
 class UsuarioSchema(BaseModel):
     nome: str
     email: str
@@ -11,6 +13,7 @@ class UsuarioSchema(BaseModel):
     class Config:
         from_attributes = True
 
+#Schema para retorno de dados do usuário
 class UsuarioMeSchema(BaseModel):
     nome: str
     email: str
@@ -19,6 +22,7 @@ class UsuarioMeSchema(BaseModel):
     class Config:
         from_attributes = True
 
+#Schema para análise de entidades (suporte)
 class entidades(BaseModel):
     texto: str
     tipo: str
@@ -26,6 +30,7 @@ class entidades(BaseModel):
     class Config:
         from_attributes = True
 
+#Schema para resposta da análise de texto
 class AnalysisResponseSchema(BaseModel):
     id: Optional[int] = None
     texto_original: str
@@ -41,6 +46,7 @@ class AnalysisResponseSchema(BaseModel):
     class Config:
         from_attributes = True
 
+#Schema para requisição de análise de texto
 class AnalysisRequestSchema(BaseModel):
     texto_original: str
     salvar_historico: bool = True
@@ -48,6 +54,7 @@ class AnalysisRequestSchema(BaseModel):
     class Config:
         from_attributes = True
 
+#Schema para login do usuário
 class LoginSchema(BaseModel):
     email: str
     senha: str
@@ -55,10 +62,12 @@ class LoginSchema(BaseModel):
     class Config:
         from_attributes = True
 
+#Schema para resposta de predição de tópicos
 class TopicPrediction(BaseModel):
     topico: str
     confianca: float
 
+#Schema para resposta de análise de tópicos (suporte)
 class TopicResponse(BaseModel):
     texto: str
     topicos: List[TopicPrediction]

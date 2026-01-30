@@ -1,9 +1,12 @@
+#Modelo de Análise de Texto usando SQLAlchemy
 import datetime
 from sqlalchemy import Integer, String, Boolean, ForeignKey, Column, Text, DateTime, JSON # type: ignore
 from sqlalchemy.orm import relationship, declarative_base # type: ignore
 
+#Base declarative class
 Base = declarative_base()
 
+#Banco de Dados Modelo para Análise de Texto
 class Analysis(Base):
     __tablename__ = "analyses"
 
@@ -35,6 +38,7 @@ class Analysis(Base):
         self.cont_caracteres = cont_caracteres
         self.cont_frases = cont_frases
 
+#Modelo de Usuário
 class Usuario(Base):
     __tablename__ = "usuarios"
 
@@ -50,6 +54,7 @@ class Usuario(Base):
         self.senha = senha
         self.admin = admin
 
+#Modelo para Histórico de Análises
 class AnalysisHistorico(Base):
     __tablename__ = "analyses_historico"
 
@@ -61,6 +66,7 @@ class AnalysisHistorico(Base):
     analysis = relationship("Analysis", backref="historicos")
     usuario = relationship("Usuario", backref="historicos")
 
+#Modelo para Tokens Revogados
 class TokenRevogado(Base):
     __tablename__ = "tokens_revogados"
 

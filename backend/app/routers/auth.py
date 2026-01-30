@@ -1,3 +1,4 @@
+#Rotas de autenticação e gerenciamento de usuários
 from fastapi import APIRouter, Depends, HTTPException, Header # type: ignore
 from fastapi.security import OAuth2PasswordRequestForm # type: ignore
 from app.models.analysis import Usuario, TokenRevogado
@@ -10,14 +11,17 @@ from sqlalchemy.orm import Session # type: ignore
 from jose import jwt, JWTError # type: ignore
 from datetime import datetime, timedelta, timezone # type: ignore
 
+#Definição do roteador de autenticação
 auth_router = APIRouter(prefix="/auth", tags=['auth'])
 
+#Função para criar token JWT
 def criar_token(id_usuario: int, duracao_token=timedelta(minutes=int(ACCESS_TOKEN_EXPIRE_MINUTES))):
     data_expiracao = datetime.now(timezone.utc) + duracao_token
     dic_info = {"sub": str(id_usuario), "exp": data_expiracao}
     jwt_encoded = jwt.encode(dic_info, SECRET_KEY, algorithm=ALGORITHM)
     return jwt_encoded
 
+#Função para autenticar usuário
 def autenticar_usuario(email, senha, session):
     usuario = session.query(Usuario).filter(Usuario.email == email).first()
     if not usuario:
@@ -30,6 +34,7 @@ def autenticar_usuario(email, senha, session):
 async def rota_basica_auth():
     return {"message": "Rota básica de autenticação."}
 
+#Rota para criar uma nova conta de usuário
 @auth_router.post("/criar_conta")
 async def criar_conta(usuario_schema: UsuarioSchema, session: Session = Depends(pegar_session)):
     usuario = session.query(Usuario).filter(Usuario.email == usuario_schema.email).first()
@@ -40,6 +45,7 @@ async def criar_conta(usuario_schema: UsuarioSchema, session: Session = Depends(
     total_usuarios = session.query(Usuario).count()
     usuario_final_admin = (total_usuarios == 0)
 
+    #Senha criptografada
     senha_criptografada = bcrypt_context.hash(usuario_schema.senha)
     novo_usuario = Usuario(
         nome=usuario_schema.nome, 
@@ -58,6 +64,7 @@ async def criar_conta(usuario_schema: UsuarioSchema, session: Session = Depends(
         "admin": novo_usuario.admin
     }
 
+#Rota para login de usuário
 @auth_router.post("/login")
 async def login(login_schema: LoginSchema, session: Session = Depends(pegar_session)):
     usuario = autenticar_usuario(login_schema.email, login_schema.senha, session)
@@ -71,6 +78,7 @@ async def login(login_schema: LoginSchema, session: Session = Depends(pegar_sess
         "token_type": "bearer"
     }
 
+#Rota para login de usuário via formulário
 @auth_router.post("/login-form")
 async def login_form(dados_form: OAuth2PasswordRequestForm = Depends(), session: Session = Depends(pegar_session)):
     usuario = autenticar_usuario(dados_form.username, dados_form.password, session)
@@ -82,6 +90,7 @@ async def login_form(dados_form: OAuth2PasswordRequestForm = Depends(), session:
         "token_type": "bearer"
     }
 
+#Rota para usar o refresh token e obter um novo access token
 @auth_router.get("/refresh_token")
 async def use_refresh_token(usuario: Usuario = Depends(pegar_usuario)):
     access_token = criar_token(usuario.id)
@@ -90,12 +99,14 @@ async def use_refresh_token(usuario: Usuario = Depends(pegar_usuario)):
         "token_type": "bearer"
     }
 
+#Rota para logout de usuário
 @auth_router.post("/logout")
 async def logout(token: str = Depends(oauth2_scheme), session: Session = Depends(pegar_session)):
     session.add(TokenRevogado(token=token))
     session.commit()
     return {"message": "Logout realizado com sucesso."}
 
+#Rota para ler os dados do usuário atual
 @auth_router.get("/me", response_model=UsuarioMeSchema)
 async def ler_usuario_atual(usuario: Usuario = Depends(pegar_usuario)):
     return {

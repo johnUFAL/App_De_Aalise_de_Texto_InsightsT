@@ -1,3 +1,4 @@
+#cofigurações sobre a aplicação
 from dotenv import load_dotenv # type: ignore
 import os
 
