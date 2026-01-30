@@ -1,12 +1,12 @@
 services:
   - type: web
-    name: InsightsT-backend
+    name: InsightsT
     env: python
     buildCommand: |
       pip install -r requirements.txt
-      # Se tiver frontend no mesmo repositório:
-      cd frontend && npm install && npm run build
-    startCommand: gunicorn app.main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker
+      # REMOVA esta linha do frontend se for só backend:
+      # cd frontend && npm install && npm run build
+    startCommand: gunicorn app.main:app --workers 2 --worker-class uvicorn.workers.UvicornWorker
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
