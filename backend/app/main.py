@@ -11,7 +11,7 @@ app = FastAPI()
 
 origins = [
     "http://localhost:5173",
-    "https://insightst-frontend.onrender.com",
+    "https://*.vercel.app",
 ]
 
 #Configuração do middleware CORS
