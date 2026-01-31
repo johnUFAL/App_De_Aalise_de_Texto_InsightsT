@@ -11,4 +11,8 @@ services:
           property: connectionString
       - key: SECRET_KEY
         generateValue: true
+      - key: ENVIRONMENT
+        value: production
+      - key: FRONTEND_URL
+        value: https://insightst.vercel.app
     healthCheckPath: /health
