@@ -1,11 +1,12 @@
 # Requisitos do projeto
 alembic 
-bcrypt 
+bcrypt==4.3.0
 fastapi 
+gunicorn
 pt_core_news_sm 
 pydantic
 python-dotenv 
-passlib[bcrypt]
+passlib[bcrypt]==1.7.4
 psycopg2-asyncpg
 pyphen 
 python-jose[cryptography]
@@ -14,8 +15,15 @@ spacy
 SQLAlchemy 
 SQLAlchemy-utils 
 slowapi
-textbolob 
+textblob 
 uvicorn 
+
+# Dependências adicionais
+requests
+numpy
+pandas
+scikit-learn
+matplotlib
 
 # Dependencias úteis para teste
 pytest
