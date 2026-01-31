@@ -2,7 +2,7 @@ services:
   - type: web
     name: insightst-backend
     env: python
-    buildCommand: buildCommand: | pip install bcrypt==4.3.0 fastapi==0.104.1 gunicorn==21.2.0 "uvicorn[standard]"==0.24.0 sqlalchemy==2.0.23 psycopg2-binary==2.9.9 "python-jose[cryptography]"==3.3.0 "passlib[bcrypt]"==1.7.4 python-multipart==0.0.6 slowapi==0.1.8 pydantic-settings==2.1.0 spacy==3.7.2 textblob==0.18.0
+    buildCommand: buildCommand: | pip install bcrypt==4.3.0 fastapi==0.104.1 gunicorn==21.2.0 "uvicorn[standard]"==0.24.0 sqlalchemy==2.0.23 psycopg2-binary==2.9.9 "python-jose[cryptography]"==3.3.0 "passlib[bcrypt]"==1.7.4 python-multipart==0.0.6 slowapi==0.1.8 pydantic-settings==2.1.0 spacy==3.7.2 textblob==0.18.0 python -m spacy download pt_core_news_sm
     startCommand: gunicorn app.main:app --workers 2 --worker-class uvicorn.workers.UvicornWorker
     envVars:
       - key: DATABASE_URL
