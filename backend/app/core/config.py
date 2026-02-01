@@ -27,7 +27,7 @@ settings = Settings()
 
 if not getattr(settings, 'DATABASE_URL', None):
     if settings.ENVIRONMENT != 'production':
-        # fallback para dev/local
+        #fallback para dev/local
         settings.DATABASE_URL = 'sqlite:///./analises.db'
 
 SECRET_KEY = settings.SECRET_KEY
