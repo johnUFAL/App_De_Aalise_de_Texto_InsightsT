@@ -1,33 +1,30 @@
 import os
 from pydantic_settings import BaseSettings # type: ignore
 
+from typing import Optional
+
 class Settings(BaseSettings):
     #Ambiente
     ENVIRONMENT: str = os.getenv("ENVIRONMENT", "development")
-    
-    #Banco de dados
-    if ENVIRONMENT == "production":
-        DATABASE_URL: str = os.getenv("DATABASE_URL")
-    else:
-        DATABASE_URL: str = "sqlite:///./analises.db"
-    
+
+    #Banco de dados (opcional — validado após instância)
+    DATABASE_URL: Optional[str] = None
+
     #Segurança
-    SECRET_KEY: str = os.getenv("SECRET_KEY", "dev-secret-change-in-production")
+    SECRET_KEY: Optional[str] = os.getenv("SECRET_KEY", "dev-secret-change-in-production")
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
-    
+
     #Frontend URL
     FRONTEND_URL: str = os.getenv("FRONTEND_URL", "https://insightstextanalysis.vercel.app")
-    
+
     class Config:
         env_file = ".env"
 
-#instancia de configurações lidas do ambiente
 settings = Settings()
 
-if not getattr(settings, 'DATABASE_URL', None):
+if not settings.DATABASE_URL:
     if settings.ENVIRONMENT != 'production':
-        #fallback para dev/local
         settings.DATABASE_URL = 'sqlite:///./analises.db'
 
 SECRET_KEY = settings.SECRET_KEY

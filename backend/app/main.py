@@ -31,11 +31,16 @@ limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-# Health check endpoint (OBRIGATÓRIO para Render)
+#Health check endpoint
 @app.get("/health")
 @limiter.limit("100/minute")
 async def health_check(request: Request):
     return {"status": "healthy"}
+
+@app.get("/info")
+async def info():
+    db_type = "sqlite" if "sqlite" in str(__import__('app.core.config', fromlist=['DATABASE_URL']).DATABASE_URL) else "postgres"
+    return {"environment": __import__('app.core.config', fromlist=['ENVIRONMENT']).ENVIRONMENT, "database": db_type}
 
 #Exemplo endpoint com rate limiting
 @app.get("/api/data")
