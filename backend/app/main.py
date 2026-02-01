@@ -5,13 +5,13 @@ from app.routers.auth import auth_router
 from slowapi import Limiter, _rate_limit_exceeded_handler # type: ignore
 from slowapi.util import get_remote_address # type: ignore
 from slowapi.errors import RateLimitExceeded # type: ignore
+from fastapi.responses import JSONResponse # type: ignore
 
 #Instacia de criação da aplicação FastAPI
 app = FastAPI()
 
 origins = [
     "http://localhost:5173",
-    "https://*.vercel.app",
     "https://insightstextanalysis.vercel.app",
 ]
 
@@ -19,12 +19,19 @@ origins = [
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
+    allow_origin_regex=r"^https://.*\.vercel\.app$",
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allow_headers=["Authorization", "Content-Type"],
+    allow_methods=["*"],  
+    allow_headers=["*"],  
     expose_headers=["Content-Length", "X-Request-ID"],
     max_age=600,
 )
+
+
+@app.get('/cors-check')
+async def cors_check(request: Request):
+    # Retorna o header Origin recebido para confirmar que o CORS está permitindo
+    return JSONResponse({"origin_received": request.headers.get('origin')})
 
 #Inicializar limiter
 limiter = Limiter(key_func=get_remote_address)
