@@ -7,10 +7,10 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://insightst-backend.onrender.com/$1"
+      "destination": "https://https://insights-backend-0onl.onrender.com/$1"
     }
   ],
   "env": {
-    "VITE_API_URL": "https://insightst-backend.onrender.com"
+    "VITE_API_URL": "https://insights-backend-0onl.onrender.com"
   }
 }
