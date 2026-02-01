@@ -1,5 +1,5 @@
 #Rotas de autenticação e gerenciamento de usuários
-from fastapi import APIRouter, Depends, HTTPException, Header # type: ignore
+from fastapi import APIRouter, Depends, HTTPException, Header, Request # type: ignore
 from fastapi.security import OAuth2PasswordRequestForm # type: ignore
 from app.models.analysis import Usuario, TokenRevogado
 from typing import Optional # type: ignore
@@ -80,8 +80,13 @@ async def login(login_schema: LoginSchema, session: Session = Depends(pegar_sess
 
 #Rota para login de usuário via formulário
 @auth_router.post("/login-form")
-async def login_form(dados_form: OAuth2PasswordRequestForm = Depends(), session: Session = Depends(pegar_session)):
-    usuario = autenticar_usuario(dados_form.username, dados_form.password, session)
+async def login_form(request: Request, session: Session = Depends(pegar_session)):
+    form = await request.form()
+    username = form.get("username")
+    password = form.get("password")
+    if not username or not password:
+        raise HTTPException(status_code=400, detail="username and password are required.")
+    usuario = autenticar_usuario(username, password, session)
     if not usuario:
         raise HTTPException(status_code=401, detail="Email ou senha inválidos.")
     access_token = criar_token(usuario.id)
