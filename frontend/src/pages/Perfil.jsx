@@ -53,7 +53,6 @@ const Perfil = () => {
   const handleLogout = () => {
     if (window.confirm("Tem certeza que deseja sair?")) {
       logout();
-      navigate("/login");
     }
   };
 

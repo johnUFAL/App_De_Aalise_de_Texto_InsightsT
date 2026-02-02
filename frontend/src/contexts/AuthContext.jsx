@@ -30,77 +30,88 @@ export const AuthProvider = ({ children }) => {
       setUser(response.data)
     } catch (error) {
       console.error('Failed to load user:', error)
-      logout()
+      handleInvalidToken()
     } finally {
       setLoading(false)
     }
   }
 
- const login = async (email, senha) => {
-  try {
-    const response = await authAPI.login(email, senha)
-    const { access_token } = response.data 
-    
-    localStorage.setItem('token', access_token)
-    setToken(access_token)
-    await loadUser()
-    return { success: true }
-  } catch (error) {
-    console.error('Login error:', error)
-    
-    let errorMessage = 'Erro ao fazer login'
-    
-    if (error.response?.data?.detail) {
-      if (Array.isArray(error.response.data.detail)) {
-        errorMessage = error.response.data.detail[0]?.msg || errorMessage
-      } 
-      else if (typeof error.response.data.detail === 'string') {
-        errorMessage = error.response.data.detail
-      }
-    }
-    
-    return { 
-      success: false, 
-      error: errorMessage
-    }
+  const handleInvalidToken = () => {
+    setUser(null)
+    setToken(null)
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
   }
-}
 
- const register = async (name, email, senha) => {
-  try {
-    const response = await authAPI.register({ 
-      nome: name, 
-      email, 
-      senha: senha 
-    })
-    
-    console.log('Registro bem-sucedido:', response.data)
-    
-    return await login(email, senha)
-    
-  } catch (error) {
-    console.error('Register error:', error)
-    
-    let errorMessage = 'Erro ao registrar'
-    if (error.response?.data?.detail) {
-      if (Array.isArray(error.response.data.detail)) {
-        errorMessage = error.response.data.detail[0]?.msg || errorMessage
-      } else if (typeof error.response.data.detail === 'string') {
-        errorMessage = error.response.data.detail
+  const login = async (email, senha) => {
+    try {
+      const response = await authAPI.login(email, senha)
+      const { access_token } = response.data 
+      
+      localStorage.setItem('token', access_token)
+      setToken(access_token)
+      await loadUser()
+      return { success: true }
+    } catch (error) {
+      console.error('Login error:', error)
+      
+      let errorMessage = 'Erro ao fazer login'
+      
+      if (error.response?.data?.detail) {
+        if (Array.isArray(error.response.data.detail)) {
+          errorMessage = error.response.data.detail[0]?.msg || errorMessage
+        } 
+        else if (typeof error.response.data.detail === 'string') {
+          errorMessage = error.response.data.detail
+        }
+      }
+      
+      return { 
+        success: false, 
+        error: errorMessage
       }
     }
-    
-    return { 
-      success: false, 
-      error: errorMessage 
+  }
+
+  const register = async (name, email, senha) => {
+    try {
+      const response = await authAPI.register({ 
+        nome: name, 
+        email, 
+        senha: senha 
+      })
+      
+      console.log('Registro bem-sucedido:', response.data)
+      
+      return await login(email, senha)
+      
+    } catch (error) {
+      console.error('Register error:', error)
+      
+      let errorMessage = 'Erro ao registrar'
+      if (error.response?.data?.detail) {
+        if (Array.isArray(error.response.data.detail)) {
+          errorMessage = error.response.data.detail[0]?.msg || errorMessage
+        } else if (typeof error.response.data.detail === 'string') {
+          errorMessage = error.response.data.detail
+        }
+      }
+      
+      return { 
+        success: false, 
+        error: errorMessage 
+      }
     }
   }
-}
 
   const logout = () => {
-    localStorage.removeItem('token')
-    setToken(null)
     setUser(null)
+    setToken(null)
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+    sessionStorage.clear()
+    
+    window.location.replace('/login')
   }
 
   return (
